@@ -1,0 +1,10 @@
+# Build output
+game
+game.exe
+*.o
+*.obj
+*.pdb
+.idea
+
+# macOS
+.DS_Store
