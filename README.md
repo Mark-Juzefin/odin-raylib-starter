@@ -42,7 +42,8 @@ odin run .
 ```
 .
 ├── main.odin    # game loop
-├── player.png   # player sprite
+├── cat.png      # player sprite, single frame
+├── cat_run.png  # player run animation, 4 frames of 16×16
 ├── ROADMAP.md
 └── README.md
 ```

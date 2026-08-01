@@ -6,16 +6,20 @@
 - Left/right movement with normalized input vector
 - Gravity and jump (SPACE)
 - Floor collision
-- Static one-way platforms (land from above only), tunneling fix via `old_pos`
+- Static one-way platforms (land from above only), tunneling fix via `prev_feet`
+- Run animation (4 frames, horizontal flip on direction change)
+- Collision body separated from the sprite rect
 
 ## Stopped at
 
-Basic platformer mechanics complete. Cat can jump between platforms.
+Basic platformer mechanics complete. Cat can jump between platforms and
+plays its run animation.
 
 ## Planned
 
-- [ ] Sprite animation (idle / run / jump)
+- [ ] Sprite animation: idle and jump states (run is done)
 - [ ] Camera following the player
 - [ ] Tilemap / level
 - [ ] Level bounds (player can't walk off screen)
-- [ ] Collectibles
+- [ ] Collectibles: animated coins on platforms, picked up by the cat,
+      with a counter for collected ones at the top of the screen
