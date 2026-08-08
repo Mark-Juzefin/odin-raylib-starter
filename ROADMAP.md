@@ -23,3 +23,12 @@ plays its run animation.
 - [ ] Level bounds (player can't walk off screen)
 - [ ] Collectibles: animated coins on platforms, picked up by the cat,
       with a counter for collected ones at the top of the screen
+
+## Ideas
+
+- **Parallel layers.** The level generates upward as the main axis. Alongside it,
+  several parallel platform layers sit in the background, stacked one behind
+  another like discs. Certain platforms act as transition points that move the
+  player between layers. Depth stays discrete — a handful of positions, not
+  continuous motion — so it is switching between parallel 2D worlds rather than
+  real 3D.
