@@ -6,6 +6,10 @@ import la "core:math/linalg"
 
 SCREEN_W     :: 800
 SCREEN_H     :: 600
+// The level's extent, in world space. Distinct from SCREEN_W/SCREEN_H on purpose:
+// with a camera the window is a view into the world, not the world itself.
+WORLD_W       :: f32(2400)
+WORLD_FLOOR_Y :: f32(600)
 TARGET_FPS   :: 60
 PLAYER_SPEED :: f32(200)
 JUMP_SPEED   :: f32(600)
@@ -76,9 +80,22 @@ main :: proc() {
 		{rect = {50,  530, 200, 16}},
 		{rect = {280, 460, 180, 16}, has_coin = true},
 		{rect = {100, 380, 160, 16}},
-		{rect = {420, 380, 200, 16}, has_coin = true},
+		{rect = {420, 380, 200, 16} , has_coin = true},
 		{rect = {580, 300, 180, 16}},
 		{rect = {300, 250, 160, 16}, has_coin = true},
+
+		// A jump clears ~90px of height and ~120px of gap at the current
+		// JUMP_SPEED/GRAVITY/PLAYER_SPEED, so rises stay under 80 and gaps under 100.
+		{rect = {820,  520, 160, 16}, has_coin = true},
+		{rect = {1030, 450, 140, 16}},
+		{rect = {1220, 380, 180, 16}, has_coin = true},
+		{rect = {1300, 530, 200, 16}},
+		{rect = {1450, 300, 150, 16}, has_coin = true},
+		{rect = {1640, 380, 200, 16}},
+		{rect = {1700, 300, 160, 16}, has_coin = true},
+		{rect = {1900, 500, 220, 16}},
+		{rect = {2050, 420, 160, 16}, has_coin = true},
+		{rect = {2200, 340, 180, 16}, has_coin = true},
 	}
 
 	player_run_texture := rl.LoadTexture("cat_run.png")
@@ -93,10 +110,10 @@ main :: proc() {
 		rl.LoadTexture("goldCoin/goldCoin6.png"),
 		rl.LoadTexture("goldCoin/goldCoin7.png"),
 		rl.LoadTexture("goldCoin/goldCoin8.png"),
-		rl.LoadTexture("goldCoin/goldCoin9.png"),	
+		rl.LoadTexture("goldCoin/goldCoin9.png"),
 	}
 	defer for t in coin_textures { rl.UnloadTexture(t) }
-	
+
 
 	player_run_anim := Animation{num_frames = 4, frame_length = 0.1}
 	coin_anim       := Animation{num_frames = len(coin_textures), frame_length = 0.1}
@@ -113,6 +130,14 @@ main :: proc() {
 
 	coins_counter := 0
 
+	camera := rl.Camera2D{
+		target =  player.pos,
+		offset = {SCREEN_W / 2, SCREEN_H}, // put the followed point in the middle of the window
+		rotation = 0,
+		zoom =    1,
+	}
+
+
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
 
@@ -127,6 +152,8 @@ main :: proc() {
 			input.x += 1
 			player.facing = PLAYER_FACING_RIGHT
 		}
+
+	 	camera.target.x = player.pos.x
 
 		if player.grounded && rl.IsKeyPressed(.SPACE) {
 			player.vel.y = -JUMP_SPEED
@@ -187,6 +214,9 @@ main :: proc() {
 
 		rl.DrawText(rl.TextFormat("%d", coins_counter), 10, 10, 50, rl.YELLOW)
 
+
+		rl.BeginMode2D(camera)	
+
 		for p in platforms {
 			rl.DrawRectangleRec(p.rect, rl.BLACK)
 			if p.has_coin && !p.coin_taken {
@@ -194,6 +224,8 @@ main :: proc() {
 				rl.DrawTextureEx(coin_textures[coin_anim.frame], {coin_rect.x, coin_rect.y}, 0, COIN_SCALE, rl.WHITE)
 			}
 		}
+
+
 
 		rl.DrawTexturePro(player_run_texture, src, dst, 0, 0, rl.WHITE)
 
@@ -203,6 +235,8 @@ main :: proc() {
 			rl.DrawLine(0, feet_y, SCREEN_W, feet_y, rl.RED)
 		}
 
+
+		rl.EndMode2D()
 		rl.EndDrawing()
 	}
 }
@@ -211,7 +245,7 @@ main :: proc() {
 // were before it. Landing needs both: you may only land on a platform you were
 // still above last frame, otherwise a fast fall would tunnel straight through it.
 get_ground_y :: proc(prev_feet: f32, body: rl.Rectangle, platforms: []Platform) -> f32 {
-	ground_y := f32(rl.GetScreenHeight()) - body.height
+	ground_y := WORLD_FLOOR_Y - body.height
 
 	for p in platforms {
 		rec := p.rect
